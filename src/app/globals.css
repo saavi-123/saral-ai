@@ -24,3 +24,64 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-syne: 'Syne', sans-serif;
+  --font-dm: 'DM Sans', sans-serif;
+
+  --bg: #ffffff;
+  --bg2: #f5f5f3;
+  --bg3: #eeede9;
+  --text: #1a1a18;
+  --text2: #6b6b67;
+  --text3: #a0a09b;
+  --border: rgba(0,0,0,0.1);
+  --border2: rgba(0,0,0,0.18);
+  --accent: #1a1a18;
+  --accent-text: #ffffff;
+  --active-bg: #ffffff;
+  --green: #1D9E75;
+  --amber: #BA7517;
+}
+
+[data-theme="dark"] {
+  --bg: #1a1a1e;
+  --bg2: #222228;
+  --bg3: #2a2a32;
+  --text: #f0f0ec;
+  --text2: #9090a0;
+  --text3: #606070;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --accent: #f0f0ec;
+  --accent-text: #1a1a1e;
+  --active-bg: #2a2a32;
+}
+
+body {
+  font-family: var(--font-dm);
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.25s, color 0.25s;
+  min-height: 100vh;
+}
+
+h1, h2, h3 { font-family: var(--font-syne); }
+
+button { cursor: pointer; font-family: var(--font-dm); }
+input, textarea, select {
+  font-family: var(--font-dm);
+  background: var(--bg2);
+  border: 0.5px solid var(--border2);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--text3);
+}
