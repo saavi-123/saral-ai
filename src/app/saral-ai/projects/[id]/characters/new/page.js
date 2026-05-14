@@ -31,7 +31,7 @@ export default function NewCharacter({ params }) {
         data: { name, summary, description, expertise, association, category, project: id, character_id }
       })
     });
-    router.push(`/projects/${id}`);
+    router.push(`/saral-ai/projects/${id}`);
   };
 
   return (

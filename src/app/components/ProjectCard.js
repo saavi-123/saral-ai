@@ -39,7 +39,7 @@ export default function ProjectCard({ project }) {
         }}>
           {project.status1}
         </span>
-        <Link href={`/projects/${project.documentId}`}>
+        <Link href={`/saral-ai/projects/${project.documentId}`}>
           <button style={{
             background: "transparent", border: "0.5px solid var(--border2)",
             borderRadius: "8px", padding: "7px 14px",

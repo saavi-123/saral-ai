@@ -1,7 +1,7 @@
 import Link from "next/link";
-import NewThreadButton from "../../../components/NewThreadButton";
-import DeleteButton from "../../../components/DeleteButton";
-import EditThreadTitle from "../../../components/EditThreadTitle";
+import NewThreadButton from "../../../../components/NewThreadButton";
+import DeleteButton from "../../../../components/DeleteButton";
+import EditThreadTitle from "../../../../components/EditThreadTitle";
 
 async function getThreads(documentId) {
   const res = await fetch(
@@ -46,7 +46,7 @@ export default async function ChatPage({ params }) {
 
   return (
     <div>
-      <Link href={`/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
+      <Link href={`/saral-ai/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
         ← Back to Project
       </Link>
 
@@ -104,7 +104,7 @@ function ThreadCard({ thread, id, isBranch }) {
   return (
     <div style={{ position: "relative" }}>
       <Link
-        href={`/projects/${id}/chat/${thread.documentId}`}
+        href={`/saral-ai/projects/${id}/chat/${thread.documentId}`}
         style={{ textDecoration: "none" }}
       >
         <div style={{

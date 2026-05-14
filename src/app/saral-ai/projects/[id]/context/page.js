@@ -1,6 +1,6 @@
 import Link from "next/link";
-import AddContextForm from "../../../components/AddContextForm";
-import DeleteButton from "../../../components/DeleteButton";
+import AddContextForm from "../../../../components/AddContextForm";
+import DeleteButton from "../../../../components/DeleteButton";
 
 async function getContextItems(documentId) {
   const res = await fetch(
@@ -37,7 +37,7 @@ export default async function ContextPage({ params }) {
 
   return (
     <div>
-      <Link href={`/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
+      <Link href={`/saral-ai/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
         ← Back to Project
       </Link>
 

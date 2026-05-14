@@ -26,7 +26,7 @@ export default function NewThreadButton({ projectId }) {
     setTitle("");
   
     const threadId = data.data?.documentId || data.data?.id;
-    router.push(`/projects/${projectId}/chat/${threadId}`);
+    router.push(`/saral-ai/projects/${projectId}/chat/${threadId}`);
   };
 
   if (showForm) {

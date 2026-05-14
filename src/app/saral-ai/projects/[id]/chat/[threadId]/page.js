@@ -3,7 +3,7 @@
 import { useState, use, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import EditThreadTitle from "../../../../components/EditThreadTitle";
+import EditThreadTitle from "../../../../../components/EditThreadTitle";
 
 export default function ChatThreadPage({ params }) {
   const { id, threadId } = use(params);
@@ -146,7 +146,7 @@ export default function ChatThreadPage({ params }) {
     });
     const data = await res.json();
     setBranchingId(null);
-    if (data.newThreadId) router.push(`/projects/${id}/chat/${data.newThreadId}`);
+    if (data.newThreadId) router.push(`/saral-ai/projects/${id}/chat/${data.newThreadId}`);
   };
 
   const toggleContext = (itemId) => {
@@ -180,7 +180,7 @@ export default function ChatThreadPage({ params }) {
         marginBottom: "20px", flexShrink: 0
       }}>
         <div>
-          <Link href={`/projects/${id}/chat`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
+          <Link href={`/saral-ai/projects/${id}/chat`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
             ← Back to Threads
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "8px" }}>

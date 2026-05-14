@@ -21,6 +21,9 @@ export default function Sidebar() {
     document.documentElement.setAttribute("data-theme", next);
   };
 
+  const isActive = (path) => pathname === path;
+  const isSaralAI = pathname.startsWith("/saral-ai");
+
   return (
     <aside style={{
       width: "220px",
@@ -48,17 +51,22 @@ export default function Sidebar() {
       </div>
 
       <NavLabel>Workspace</NavLabel>
-      <NavItem href="/" active={pathname === "/"}>
+      <NavItem href="/saral-ai/projects" active={isActive("/saral-ai/projects")}>
         <GridIcon /> All Projects
       </NavItem>
-      <NavItem href="/" active={false}>
+      <NavItem href="/saral-ai/projects" active={false}>
         <ClockIcon /> Active
       </NavItem>
 
       <Divider />
       <NavLabel>Tools</NavLabel>
-      <NavItem href="/projects/new" active={pathname === "/projects/new"}>
+      <NavItem href="/saral-ai/projects/new" active={isActive("/saral-ai/projects/new")}>
         <PlusIcon /> New Project
+      </NavItem>
+
+      <Divider />
+      <NavItem href="/" active={isActive("/")}>
+        <HomeIcon /> Dashboard
       </NavItem>
 
       <div style={{ flex: 1 }} />
@@ -140,4 +148,7 @@ function MoonIcon() {
 }
 function SunIcon() {
   return <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.5 3.5l1.5 1.5M11 11l1.5 1.5M3.5 12.5L5 11M11 5l1.5-1.5"/></svg>;
+}
+function HomeIcon() {
+  return <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 6l6-4 6 4v8H2V6z"/><rect x="6" y="10" width="4" height="4"/></svg>;
 }

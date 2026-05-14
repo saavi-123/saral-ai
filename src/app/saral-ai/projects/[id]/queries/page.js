@@ -27,7 +27,7 @@ export default async function QueriesPage({ params }) {
 
   return (
     <div>
-      <Link href={`/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
+      <Link href={`/saral-ai/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
         ← Back to Project
       </Link>
 
@@ -40,7 +40,7 @@ export default async function QueriesPage({ params }) {
             {project?.name} · {queries.length} {queries.length === 1 ? "query" : "queries"}
           </p>
         </div>
-        <Link href={`/projects/${id}/ask`}>
+        <Link href={`/saral-ai/projects/${id}/ask`}>
           <button style={{
             background: "var(--accent)", color: "var(--accent-text)",
             border: "none", padding: "9px 18px", borderRadius: "8px",
@@ -63,7 +63,7 @@ export default async function QueriesPage({ params }) {
           <div style={{ fontSize: "13px", color: "var(--text2)", marginBottom: "20px" }}>
             Start asking your characters questions to build the investigation history
           </div>
-          <Link href={`/projects/${id}/ask`}>
+          <Link href={`/saral-ai/projects/${id}/ask`}>
             <button style={{
               background: "var(--accent)", color: "var(--accent-text)",
               border: "none", padding: "10px 24px", borderRadius: "8px",

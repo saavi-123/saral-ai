@@ -1,10 +1,10 @@
 import Link from "next/link";
-import StatusUpdater from "../../components/StatusUpdater";
-import DeleteButton from "../../components/DeleteButton";
-import EditProjectForm from "../../components/EditProjectForm";
-import EditCharacterForm from "../../components/EditCharacterForm";
-import CharacterCard from "../../components/CharacterCard";
-import CaseSummary from "../../components/CaseSummary";
+import StatusUpdater from "../../../components/StatusUpdater";
+import DeleteButton from "../../../components/DeleteButton";
+import EditProjectForm from "../../../components/EditProjectForm";
+import EditCharacterForm from "../../../components/EditCharacterForm";
+import CharacterCard from "../../../components/CharacterCard";
+import CaseSummary from "../../../components/CaseSummary";
 
 async function getProject(documentId) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/projects/${documentId}?populate=characters`, {
@@ -64,21 +64,21 @@ export default async function ProjectPage({ params }) {
               redirectTo="/"
               label="🗑 Delete"
             />
-            <Link href={`/projects/${id}/queries`}>
+            <Link href={`/saral-ai/projects/${id}/queries`}>
               <button style={{
                 background: "transparent", border: "0.5px solid var(--border2)",
                 borderRadius: "8px", padding: "9px 18px",
                 fontSize: "13px", color: "var(--text2)"
               }}>📋 History</button>
             </Link>
-            <Link href={`/projects/${id}/context`}>
+            <Link href={`/saral-ai/projects/${id}/context`}>
               <button style={{
                 background: "transparent", border: "0.5px solid var(--border2)",
                 borderRadius: "8px", padding: "9px 18px",
                 fontSize: "13px", color: "var(--text2)"
               }}>📁 Context</button>
             </Link>
-            <Link href={`/projects/${id}/chat`}>
+            <Link href={`/saral-ai/projects/${id}/chat`}>
               <button style={{
                 background: "var(--accent)", color: "var(--accent-text)",
                 border: "none", padding: "9px 18px", borderRadius: "8px",
@@ -126,7 +126,7 @@ export default async function ProjectPage({ params }) {
         <div style={{ fontSize: "11px", fontWeight: 500, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.8px" }}>
           Characters
         </div>
-        <Link href={`/projects/${project.documentId}/characters/new`}>
+        <Link href={`/saral-ai/projects/${project.documentId}/characters/new`}>
           <button style={{
             background: "transparent", border: "0.5px solid var(--border2)",
             borderRadius: "8px", padding: "7px 14px",
@@ -186,7 +186,7 @@ export default async function ProjectPage({ params }) {
           <div style={{ fontSize: "13px", color: "var(--text2)", marginBottom: "20px" }}>
             Add your first character to start the investigation
           </div>
-          <Link href={`/projects/${project.documentId}/characters/new`}>
+          <Link href={`/saral-ai/projects/${project.documentId}/characters/new`}>
             <button style={{
               background: "var(--accent)", color: "var(--accent-text)",
               border: "none", padding: "10px 24px", borderRadius: "8px",

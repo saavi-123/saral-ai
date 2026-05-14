@@ -91,7 +91,7 @@ export default function AskPage({ params }) {
 
   return (
     <div style={{ maxWidth: "700px" }}>
-      <Link href={`/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
+      <Link href={`/saral-ai/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
         ← Back to Project
       </Link>
 
@@ -104,7 +104,7 @@ export default function AskPage({ params }) {
             2-step AI consultation with your investigation team
           </p>
         </div>
-        <Link href={`/projects/${id}/queries`}>
+        <Link href={`/saral-ai/projects/${id}/queries`}>
           <button style={{
             background: "transparent", border: "0.5px solid var(--border2)",
             borderRadius: "8px", padding: "8px 16px",
@@ -283,7 +283,7 @@ export default function AskPage({ params }) {
             >
               Ask Another Question
             </button>
-            <Link href={`/projects/${id}/queries`}>
+            <Link href={`/saral-ai/projects/${id}/queries`}>
               <button style={{
                 background: "transparent", border: "0.5px solid var(--border2)",
                 borderRadius: "8px", padding: "10px 24px",
