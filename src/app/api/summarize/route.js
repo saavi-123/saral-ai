@@ -9,7 +9,7 @@ export async function POST(req) {
   try {
     const charactersText = characters.length > 0
       ? characters.map(c =>
-          `- ${c.name} (${c.category === "story" ? "Story Character" : "Production Expert"}) — ${c.expertise}${c.association ? `, ${c.association}` : ""}${c.summary ? `\n  ${c.summary}` : ""}`
+          `- ${c.name} (${c.category === "story" ? "Case Subject" : "Production Expert"}) — ${c.expertise}${c.association ? `, ${c.association}` : ""}${c.summary ? `\n  ${c.summary}` : ""}`
         ).join("\n")
       : "No characters added yet.";
 

@@ -79,6 +79,7 @@ const liveTools = tools.reduce((acc, cat) => acc + cat.items.filter(t => t.live)
 export default function Dashboard() {
   const [theme, setTheme] = useState("dark");
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
   const [activeCategory, setActiveCategory] = useState("collaboration");
   const categoryRefs = useRef({});
   const searchRef = useRef(null);
@@ -89,7 +90,6 @@ export default function Dashboard() {
     document.documentElement.setAttribute("data-theme", saved);
   }, []);
 
-  // Press / to focus search
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === "/" && document.activeElement !== searchRef.current) {
@@ -105,7 +105,6 @@ export default function Dashboard() {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  // Scroll spy — update active category as user scrolls
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -140,14 +139,22 @@ export default function Dashboard() {
 
   const filteredTools = tools.map(cat => ({
     ...cat,
-    items: cat.items.filter(tool =>
-      tool.name.toLowerCase().includes(search.toLowerCase()) ||
-      tool.desc.toLowerCase().includes(search.toLowerCase()) ||
-      tool.usecase.toLowerCase().includes(search.toLowerCase())
-    )
+    items: cat.items.filter(tool => {
+      const matchesSearch =
+        tool.name.toLowerCase().includes(search.toLowerCase()) ||
+        tool.desc.toLowerCase().includes(search.toLowerCase()) ||
+        tool.usecase.toLowerCase().includes(search.toLowerCase());
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "live" && tool.live) ||
+        (filter === "upcoming" && !tool.live);
+      return matchesSearch && matchesFilter;
+    })
   })).filter(cat => cat.items.length > 0);
 
   const isDark = theme === "dark";
+
+  const resultCount = filteredTools.reduce((a, c) => a + c.items.length, 0);
 
   return (
     <div style={{
@@ -191,7 +198,7 @@ export default function Dashboard() {
           }}>Intelligence Platform</span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           {/* Search */}
           <div style={{ position: "relative" }}>
             <input
@@ -208,7 +215,7 @@ export default function Dashboard() {
                 fontFamily: "var(--font-dm)",
                 color: "var(--text)",
                 outline: "none",
-                width: "220px"
+                width: "200px"
               }}
             />
             {search && (
@@ -222,6 +229,36 @@ export default function Dashboard() {
                 }}
               >×</button>
             )}
+          </div>
+
+          {/* Filter buttons */}
+          <div style={{ display: "flex", gap: "4px" }}>
+            {[
+              { key: "all", label: "All" },
+              { key: "live", label: "🟢 Live" },
+              { key: "upcoming", label: "⏳ Upcoming" }
+            ].map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "8px",
+                  fontSize: "11px",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  border: "0.5px solid",
+                  borderColor: filter === f.key ? "var(--accent)" : "var(--border2)",
+                  background: filter === f.key ? "var(--accent)" : "transparent",
+                  color: filter === f.key ? "var(--accent-text)" : "var(--text2)",
+                  transition: "all 0.15s",
+                  fontFamily: "var(--font-dm)",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
 
           {/* Theme toggle */}
@@ -337,8 +374,8 @@ export default function Dashboard() {
               Intelligence Tools
             </h1>
             <p style={{ fontSize: "13px", color: "var(--text2)" }}>
-              {search
-                ? `${filteredTools.reduce((a, c) => a + c.items.length, 0)} results for "${search}"`
+              {search || filter !== "all"
+                ? `${resultCount} ${resultCount === 1 ? "tool" : "tools"} ${filter !== "all" ? `· ${filter}` : ""} ${search ? `matching "${search}"` : ""}`
                 : `${totalTools} tools · ${liveTools} live · ${totalTools - liveTools} in development`
               }
             </p>
@@ -352,7 +389,7 @@ export default function Dashboard() {
             }}>
               <div style={{ fontSize: "32px", marginBottom: "12px" }}>🔍</div>
               <div style={{ fontSize: "15px", color: "var(--text2)", marginBottom: "6px" }}>No tools found</div>
-              <div style={{ fontSize: "13px" }}>Try a different search term</div>
+              <div style={{ fontSize: "13px" }}>Try a different search term or filter</div>
             </div>
           )}
 
@@ -406,7 +443,6 @@ export default function Dashboard() {
                     borderRadius: "12px", padding: "18px",
                     transition: "all 0.15s"
                   }}>
-                    {/* Top row */}
                     <div style={{
                       display: "flex", alignItems: "flex-start",
                       justifyContent: "space-between", marginBottom: "10px"
@@ -433,7 +469,6 @@ export default function Dashboard() {
                       </span>
                     </div>
 
-                    {/* Name */}
                     <div style={{
                       fontFamily: "var(--font-syne)",
                       fontSize: "14px", fontWeight: 600,
@@ -443,7 +478,6 @@ export default function Dashboard() {
                       {tool.name}
                     </div>
 
-                    {/* Description */}
                     <div style={{
                       fontSize: "12px", color: "var(--text2)",
                       lineHeight: 1.6, marginBottom: "10px"
@@ -451,7 +485,6 @@ export default function Dashboard() {
                       {tool.desc}
                     </div>
 
-                    {/* Use case */}
                     <div style={{
                       fontSize: "11px", color: "var(--text3)",
                       lineHeight: 1.5, paddingTop: "10px",
@@ -460,7 +493,6 @@ export default function Dashboard() {
                       {tool.usecase}
                     </div>
 
-                    {/* Action */}
                     <div style={{ marginTop: "12px" }}>
                       {tool.live ? (
                         <Link href={tool.href}>
@@ -473,7 +505,7 @@ export default function Dashboard() {
                             fontFamily: "var(--font-dm)",
                             transition: "all 0.15s"
                           }}>
-                            Launch →
+                            Launch
                           </button>
                         </Link>
                       ) : (

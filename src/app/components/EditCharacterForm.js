@@ -93,8 +93,8 @@ export default function EditCharacterForm({ character }) {
             <label style={labelStyle}>Character Category</label>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               {[
-                { value: "production", label: "Production Character", desc: "Real expert being consulted" },
-                { value: "story", label: "Story Character", desc: "Character inside the case" }
+                { value: "production", label: "Investigation Team Member", desc: "Real expert being consulted" },
+                { value: "story", label: "Case Subject", desc: "Character inside the case" }
               ].map((cat) => (
                 <div
                   key={cat.value}

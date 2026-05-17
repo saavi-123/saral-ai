@@ -14,7 +14,7 @@ export async function POST(req) {
       : "\n\nCASE FILES: None provided for this query.";
 
     const allCharacterProfiles = characters.map(c =>
-      `${c.name} (${c.category === "story" ? "Story Character" : "Production Expert"}) — ${c.expertise}`
+      `${c.name} (${c.category === "story" ? "Case Subject" : "Production Expert"}) — ${c.expertise}`
     ).join(", ");
 
     const responses = [];

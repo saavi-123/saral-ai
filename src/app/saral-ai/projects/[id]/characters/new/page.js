@@ -56,8 +56,8 @@ export default function NewCharacter({ params }) {
           </label>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
             {[
-              { value: "production", label: "Production Character", desc: "Real expert being consulted — detective, lawyer, forensic specialist" },
-              { value: "story", label: "Story Character", desc: "Character inside the case — suspect, witness, victim" }
+              { value: "production", label: "Investigation Team Member", desc: "Real expert being consulted — detective, lawyer, forensic specialist" },
+              { value: "story", label: "Case Subject", desc: "Character inside the case — suspect, witness, victim" }
             ].map((cat) => (
               <div
                 key={cat.value}

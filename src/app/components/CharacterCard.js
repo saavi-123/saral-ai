@@ -26,7 +26,7 @@ export default function CharacterCard({ char, color, bg }) {
             fontSize: "10px", padding: "2px 8px", borderRadius: "20px",
             background: bg, color: color, fontWeight: 500
           }}>
-            {char.category === "story" ? "Story" : "Production"}
+            {char.category === "story" ? "Story" : "Investigation Team"}
           </span>
           {char.character_id && (
             <span style={{

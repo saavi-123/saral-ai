@@ -37,7 +37,7 @@ export default async function ProjectPage({ params }) {
     <div>
       {/* Header */}
       <div style={{ marginBottom: "28px" }}>
-        <Link href="/" style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>← Back to Projects</Link>
+        <Link href="/saral-ai/projects" style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>← Back to Projects</Link>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginTop: "12px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -135,7 +135,7 @@ export default async function ProjectPage({ params }) {
         </Link>
       </div>
 
-      {/* Production Characters */}
+      {/* Investigation Team */}
       {productionChars.length > 0 && (
         <div style={{ marginBottom: "24px" }}>
           <div style={{
@@ -144,7 +144,7 @@ export default async function ProjectPage({ params }) {
             marginBottom: "10px", display: "flex", alignItems: "center", gap: "6px"
           }}>
             <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#185FA5" }} />
-            Production Characters
+            Investigation Team
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {productionChars.map((char) => (
@@ -154,7 +154,7 @@ export default async function ProjectPage({ params }) {
         </div>
       )}
 
-      {/* Story Characters */}
+      {/* Case Subjects */}
       {storyChars.length > 0 && (
         <div style={{ marginBottom: "24px" }}>
           <div style={{
@@ -163,7 +163,7 @@ export default async function ProjectPage({ params }) {
             marginBottom: "10px", display: "flex", alignItems: "center", gap: "6px"
           }}>
             <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#534AB7" }} />
-            Story Characters
+            Case Subjects
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {storyChars.map((char) => (
