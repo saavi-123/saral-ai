@@ -44,7 +44,7 @@ const tools = [
     category: "Location & Movement",
     id: "location",
     items: [
-      { name: "Geolocation Tracking", icon: "🎯", desc: "Advanced suspect tracking and live radar intelligence system.", usecase: "Real-time suspect geolocation tracking; radar-based monitoring.", live: false },
+      { name: "Geolocation Tracking", icon: "🎯", desc: "Advanced suspect tracking and live radar intelligence system.", usecase: "Real-time suspect geolocation tracking; radar-based monitoring.", live: true, href: "/geolocation" },
       { name: "Lat Long Mapper", icon: "🗺️", desc: "Interactive tool for visualizing coordinates on maps.", usecase: "Plot GPS coordinates from evidence; map crime scenes and suspect movements.", live: false },
       { name: "Sugam Route", icon: "🛣️", desc: "Advanced route analysis and mapping tool.", usecase: "Reconstruct suspect travel routes from tower location data or GPS points.", live: false },
       { name: "Toll Plaza", icon: "🚗", desc: "Reviews toll plaza crossings and movement references.", usecase: "Track vehicle movement on highways; corroborate alibis or identify escape routes.", live: false },
