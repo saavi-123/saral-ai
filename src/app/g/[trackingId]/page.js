@@ -9,7 +9,7 @@ export default function TrackingPage({ params }) {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    fetch(process.env.NEXT_PUBLIC_STRAPI_URL + "/api/tracking-sessions")
+    fetch(`/api/tracking/session?trackingId=${trackingId}`)
       .then(res => res.json())
       .then(data => {
         const found = data.data.find(

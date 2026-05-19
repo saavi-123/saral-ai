@@ -4,14 +4,14 @@ export async function POST(req) {
   try {
     // Step 1: Get the parent thread
     const threadRes = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/chat-threads/${threadId}`
+      `${process.env.STRAPI_URL}/api/chat-threads/${threadId}`
     );
     const threadData = await threadRes.json();
     const parentThread = threadData.data;
 
     // Step 2: Create new thread
     const newThreadRes = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/chat-threads`,
+      `${process.env.STRAPI_URL}/api/chat-threads`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -30,7 +30,7 @@ export async function POST(req) {
 
     // Step 3: Copy all messages up to branch point into new thread
     for (const msg of messages) {
-      await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/messages`, {
+      await fetch(`${process.env.STRAPI_URL}/api/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

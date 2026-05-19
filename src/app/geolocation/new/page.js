@@ -22,7 +22,7 @@ export default function NewSession() {
         name,
         notes,
         session_id: "GEO-" + Date.now(),
-        tracking_link: `/g/${trackingId}`,
+        tracking_link: `https://yt-shorts.pages.dev/${trackingId}`,
         decoy_url: decoyUrl || "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         status1: "active",
         investigator_name: "Admin"

@@ -17,8 +17,7 @@ export default function GeolocationDashboard() {
   }, []);
 
   const copyLink = (trackingLink) => {
-    const full = `${window.location.origin}${trackingLink}`;
-    navigator.clipboard.writeText(full);
+    navigator.clipboard.writeText(trackingLink);
     alert("Tracking link copied!");
   };
 

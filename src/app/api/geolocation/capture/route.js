@@ -3,8 +3,11 @@ export async function POST(req) {
     const body = await req.json();
     const { trackingId, locationData, permissions, userAgent, screen, videoUrl } = body;
 
+    // Get real IP passed by Cloudflare Worker
+    const realIP = req.headers.get("X-Real-IP") || null;
+
     const sessionsRes = await fetch(
-      process.env.NEXT_PUBLIC_STRAPI_URL + "/api/tracking-sessions"
+      process.env.STRAPI_URL + "/api/tracking-sessions"
     );
     const sessionsData = await sessionsRes.json();
 
@@ -16,8 +19,19 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: "Session not found" }), { status: 400 });
     }
 
-    const ipRes = await fetch("http://ip-api.com/json/");
-    const ipData = await ipRes.json();
+    // Use real IP from Cloudflare Worker if available
+    let ipData = {};
+    try {
+      if (realIP && realIP !== "unknown") {
+        const ipRes = await fetch(`http://ip-api.com/json/${realIP}`);
+        ipData = await ipRes.json();
+      } else {
+        const ipRes = await fetch("http://ip-api.com/json/");
+        ipData = await ipRes.json();
+      }
+    } catch (e) {
+      console.error("IP lookup failed:", e);
+    }
 
     const ua = userAgent || "";
     const os = ua.includes("Windows") ? "Windows"
@@ -35,14 +49,14 @@ export async function POST(req) {
       ? "Mobile" : "Desktop";
 
     const saveRes = await fetch(
-      process.env.NEXT_PUBLIC_STRAPI_URL + "/api/tracking-events",
+      process.env.STRAPI_URL + "/api/tracking-events",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: {
             session: session.documentId,
-            ip_address: ipData?.query || "unknown",
+            ip_address: realIP || ipData?.query || "unknown",
             city: ipData?.city || "unknown",
             country: ipData?.country || "unknown",
             isp: ipData?.isp || "unknown",

@@ -79,7 +79,7 @@ export default function SessionDetail({ params }) {
       {/* Session info */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "28px" }}>
         {[
-          { label: "Tracking Link", value: `${typeof window !== "undefined" ? window.location.origin : ""}${session.tracking_link}` },
+          { label: "Tracking Link", value: session.tracking_link },
           { label: "Decoy URL", value: session.decoy_url || "Not set" },
           { label: "Created", value: new Date(session.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) },
         ].map(item => (
