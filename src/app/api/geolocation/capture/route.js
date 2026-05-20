@@ -4,6 +4,7 @@ export async function POST(req) {
     const { trackingId, locationData, permissions, userAgent, screen, videoUrl } = body;
 
     // Get real IP — try multiple header variations
+    console.log("X-REAL-IP HEADER:", req.headers.get("X-Real-IP"));
     const realIP = req.headers.get("x-real-ip") ||
                    req.headers.get("X-Real-IP") ||
                    req.headers.get("cf-connecting-ip") ||
