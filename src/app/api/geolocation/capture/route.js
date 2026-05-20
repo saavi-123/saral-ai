@@ -33,7 +33,7 @@ export async function POST(req) {
     try {
       if (realIP && realIP !== "unknown") {
         console.log("Looking up IP:", realIP);
-        const ipRes = await fetch(`http://ip-api.com/json/${realIP}`);
+        const ipRes = await fetch(`http://ip-api.com/json/?query=${encodeURIComponent(realIP)}`);
         ipData = await ipRes.json();
         console.log("IP data:", ipData);
       } else {
