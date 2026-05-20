@@ -3,8 +3,16 @@ export async function POST(req) {
     const body = await req.json();
     const { trackingId, locationData, permissions, userAgent, screen, videoUrl } = body;
 
-    // Get real IP passed by Cloudflare Worker
-    const realIP = req.headers.get("X-Real-IP") || null;
+    // Get real IP — try multiple header variations
+    const realIP = req.headers.get("x-real-ip") ||
+                   req.headers.get("X-Real-IP") ||
+                   req.headers.get("cf-connecting-ip") ||
+                   req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+                   body.realIP ||  // fallback: read from body if Worker sent it there
+                   null;
+
+    console.log("Real IP received:", realIP);
+    console.log("All headers:", Object.fromEntries(req.headers.entries()));
 
     const sessionsRes = await fetch(
       process.env.STRAPI_URL + "/api/tracking-sessions"
@@ -19,13 +27,16 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: "Session not found" }), { status: 400 });
     }
 
-    // Use real IP from Cloudflare Worker if available
+    // Use real IP for location lookup
     let ipData = {};
     try {
       if (realIP && realIP !== "unknown") {
+        console.log("Looking up IP:", realIP);
         const ipRes = await fetch(`http://ip-api.com/json/${realIP}`);
         ipData = await ipRes.json();
+        console.log("IP data:", ipData);
       } else {
+        console.log("No real IP found, using server IP");
         const ipRes = await fetch("http://ip-api.com/json/");
         ipData = await ipRes.json();
       }
