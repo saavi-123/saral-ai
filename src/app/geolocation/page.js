@@ -1,12 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function GeolocationDashboard() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const router = useRouter();
+    const deleteSession = async (documentId) => {
+      if (!confirm("Delete this session and all captured events?")) return;
+      await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/tracking-sessions/${documentId}`,
+        { method: "DELETE" }
+      );
+      setSessions(prev => prev.filter(s => s.documentId !== documentId));
+    };
   useEffect(() => {
     fetch(process.env.NEXT_PUBLIC_STRAPI_URL + "/api/tracking-sessions?sort=createdAt:desc")
       .then(res => res.json())
@@ -130,6 +139,16 @@ export default function GeolocationDashboard() {
                     View →
                   </button>
                 </Link>
+                <button
+                  onClick={() => deleteSession(session.documentId)}
+                  style={{
+                    background: "transparent", border: "0.5px solid #F09595",
+                    borderRadius: "8px", padding: "7px 14px",
+                    fontSize: "12px", color: "#A32D2D", cursor: "pointer"
+                  }}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}

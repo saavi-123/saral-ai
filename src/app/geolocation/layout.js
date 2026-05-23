@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ThemeToggle from "../components/ThemeToggle";
+import GeoSidebarFooter from "./GeoSidebarFooter";
 
 export const metadata = {
   title: "Geolocation Tracking",
@@ -53,21 +53,7 @@ export default function GeolocationLayout({ children }) {
 
         <div style={{ flex: 1 }} />
 
-        <div style={{
-          borderTop: "0.5px solid var(--border)",
-          padding: "16px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px"
-        }}>
-          <ThemeToggle />
-          <Link href="/" style={{
-            fontSize: "13px", color: "var(--text2)",
-            textDecoration: "none"
-          }}>
-            ← Dashboard
-          </Link>
-        </div>
+        <GeoSidebarFooter />
       </aside>
 
       <main style={{

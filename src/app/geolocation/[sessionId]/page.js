@@ -27,6 +27,26 @@ export default function SessionDetail({ params }) {
     alert("Tracking link copied!");
   };
 
+  const deleteEvent = async (eventDocumentId) => {
+    if (!confirm("Delete this captured event?")) return;
+    await fetch(
+      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/tracking-events/${eventDocumentId}`,
+      { method: "DELETE" }
+    );
+    setEvents(prev => prev.filter(e => e.documentId !== eventDocumentId));
+  };
+  const toggleStatus = async () => {
+    const newStatus = session.status1 === "active" ? "closed" : "active";
+    await fetch(
+      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/tracking-sessions/${session.documentId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: { status1: newStatus } })
+      }
+    );
+    setSession(prev => ({ ...prev, status1: newStatus }));
+  };
   if (loading) return (
     <div style={{ padding: "32px", color: "var(--text3)" }}>Loading...</div>
   );
@@ -54,8 +74,14 @@ export default function SessionDetail({ params }) {
             <span style={{
               fontSize: "11px", padding: "3px 10px", borderRadius: "20px",
               fontWeight: 500,
-              background: session.status1 === "active" ? "#E1F5EE" : "var(--bg3)",
-              color: session.status1 === "active" ? "#0F6E56" : "var(--text2)"
+              background: session.status1 === "active" ? "#E1F5EE"
+                : session.status1 === "closed" ? "#FDECEA"
+                : session.status1 === "archived" ? "var(--bg3)"
+                : "var(--bg3)",
+              color: session.status1 === "active" ? "#0F6E56"
+                : session.status1 === "closed" ? "#A32D2D"
+                : session.status1 === "archived" ? "var(--text3)"
+                : "var(--text2)"
             }}>
               {session.status1}
             </span>
@@ -64,6 +90,19 @@ export default function SessionDetail({ params }) {
             {session.session_id} · {events.length} {events.length === 1 ? "event" : "events"} captured
           </p>
         </div>
+        <button
+          onClick={toggleStatus}
+          style={{
+            background: "transparent",
+            border: `0.5px solid ${session.status1 === "active" ? "#BA7517" : "#1D9E75"}`,
+            borderRadius: "8px", padding: "9px 18px",
+            fontSize: "13px",
+            color: session.status1 === "active" ? "#BA7517" : "#1D9E75",
+            cursor: "pointer"
+          }}
+        >
+          {session.status1 === "active" ? "🔒 Close Session" : "🔓 Reopen Session"}
+        </button>
         <button
           onClick={copyLink}
           style={{
@@ -126,8 +165,20 @@ export default function SessionDetail({ params }) {
                 <div style={{ fontWeight: 500, fontSize: "14px", color: "var(--text)" }}>
                   Event #{events.length - index}
                 </div>
-                <div style={{ fontSize: "12px", color: "var(--text3)" }}>
-                  {new Date(event.triggered_at).toLocaleString("en-IN")}
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{ fontSize: "12px", color: "var(--text3)" }}>
+                    {new Date(event.triggered_at).toLocaleString("en-IN")}
+                  </div>
+                  <button
+                    onClick={() => deleteEvent(event.documentId)}
+                    style={{
+                      background: "transparent", border: "0.5px solid #F09595",
+                      borderRadius: "6px", padding: "4px 10px",
+                      fontSize: "11px", color: "#A32D2D", cursor: "pointer"
+                    }}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
 
@@ -206,7 +257,9 @@ export default function SessionDetail({ params }) {
                     🎥 Front Camera Recording
                     </div>
                     <video
-                    src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${event.front_video}`}
+                    src={event.front_video.startsWith("http")
+                      ? event.front_video
+                      : `${process.env.NEXT_PUBLIC_STRAPI_URL}${event.front_video}`}
                     controls
                     style={{
                         width: "320px", height: "240px",

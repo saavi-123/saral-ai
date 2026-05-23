@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { useSession, signOut } from "next-auth/react";
 
 const tools = [
   {
@@ -83,6 +84,7 @@ export default function Dashboard() {
   const [activeCategory, setActiveCategory] = useState("collaboration");
   const categoryRefs = useRef({});
   const searchRef = useRef(null);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const saved = localStorage.getItem("saral-theme") || "dark";
@@ -276,12 +278,44 @@ export default function Dashboard() {
             {isDark ? "☀️ Light" : "🌙 Dark"}
           </button>
 
-          <div style={{
-            width: "32px", height: "32px", borderRadius: "50%",
-            background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "13px", fontWeight: 600, color: "white"
-          }}>S</div>
+          {/* User + Sign out */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "13px", color: "var(--text3)" }}>
+              {session?.user?.name || session?.user?.email || ""}
+            </span>
+            <div
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              style={{
+                display: "flex", alignItems: "center", gap: "6px",
+                padding: "6px 12px",
+                background: "transparent",
+                border: "0.5px solid var(--border2)",
+                borderRadius: "8px",
+                color: "var(--text3)",
+                fontSize: "12px",
+                cursor: "pointer",
+                fontFamily: "var(--font-dm)",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(163,45,45,0.1)";
+                e.currentTarget.style.color = "#e57373";
+                e.currentTarget.style.borderColor = "rgba(163,45,45,0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.color = "var(--text3)";
+                e.currentTarget.style.borderColor = "var(--border2)";
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              Sign out
+            </div>
+          </div>
         </div>
       </div>
 

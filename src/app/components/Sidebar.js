@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [theme, setTheme] = useState("light");
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const saved = localStorage.getItem("saral-theme") || "light";
@@ -91,12 +93,56 @@ export default function Sidebar() {
       </div>
 
       <NavLabel style={{ marginTop: "8px" }}>Account</NavLabel>
-      <NavItem href="/" active={false}>
-        <UserIcon /> Saavi
-      </NavItem>
+
+      {/* Username display */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+        padding: "9px 20px",
+        fontSize: "13px",
+        color: "var(--text2)",
+      }}>
+        <UserIcon />
+        <span style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}>
+          {session?.user?.name || session?.user?.email || "—"}
+        </span>
+      </div>
+
+      {/* Sign out button */}
+      <div
+        onClick={() => signOut({ callbackUrl: "/login" })}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          padding: "9px 20px",
+          fontSize: "13px",
+          color: "var(--text2)",
+          cursor: "pointer",
+          borderLeft: "2px solid transparent",
+          transition: "all 0.15s",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = "#e57373";
+          e.currentTarget.style.background = "rgba(163,45,45,0.08)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "var(--text2)";
+          e.currentTarget.style.background = "transparent";
+        }}
+      >
+        <SignOutIcon /> Sign out
+      </div>
     </aside>
   );
 }
+
+// --- existing helper components unchanged below ---
 
 function NavLabel({ children }) {
   return (
@@ -151,4 +197,7 @@ function SunIcon() {
 }
 function HomeIcon() {
   return <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 6l6-4 6 4v8H2V6z"/><rect x="6" y="10" width="4" height="4"/></svg>;
+}
+function SignOutIcon() {
+  return <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3"/><polyline points="11 11 14 8 11 5"/><line x1="14" y1="8" x2="6" y2="8"/></svg>;
 }
