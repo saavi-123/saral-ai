@@ -9,12 +9,17 @@ export async function middleware(request) {
 
   const { pathname } = request.nextUrl;
 
-  
   const isLoginPage = pathname === "/login";
   const isPublicTrackingPage = pathname.startsWith("/g/");
   const isApiAuth = pathname.startsWith("/api/auth");
 
-  if (isLoginPage || isPublicTrackingPage || isApiAuth) {
+  // Public API routes — called by Cloudflare Worker, must never require auth
+  const isPublicApi =
+    pathname.startsWith("/api/geolocation/capture") ||
+    pathname.startsWith("/api/geolocation/upload") ||
+    pathname.startsWith("/api/tracking/session");
+
+  if (isLoginPage || isPublicTrackingPage || isApiAuth || isPublicApi) {
     if (isLoginPage && token) {
       return NextResponse.redirect(new URL("/", request.url));
     }
