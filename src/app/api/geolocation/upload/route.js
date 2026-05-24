@@ -10,17 +10,16 @@ export async function POST(req) {
       }
     );
 
-    const text = await res.text();
+    const data = await res.json();
 
-    return Response.json({
-      frontendStatus: res.status,
-      rawResponse: text
-    });
+    if (Array.isArray(data) && data[0]?.url) {
+      return Response.json({ url: data[0].url });
+    }
+
+    return Response.json({ error: "Upload failed" }, { status: 400 });
 
   } catch (err) {
-    return Response.json({
-      error: "Server error",
-      message: err.message
-    }, { status: 500 });
+    console.error("Upload proxy error:", err);
+    return Response.json({ error: "Server error" }, { status: 500 });
   }
 }
