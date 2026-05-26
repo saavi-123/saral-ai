@@ -1,4 +1,4 @@
-import { Syne, DM_Sans } from "next/font/google";
+import { Syne, DM_Sans, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "./components/AuthProvider";
 
@@ -14,6 +14,12 @@ const dmSans = DM_Sans({
   weight: ["300", "400", "500"]
 });
 
+const devanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  variable: "--font-devanagari",
+  weight: ["400", "500", "600"]
+});
+
 export const metadata = {
   title: "Cyber AI Agent",
   description: "Law Enforcement Intelligence Platform",
@@ -22,7 +28,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${syne.variable} ${dmSans.variable}`}>
+      <body
+        className={`${syne.variable} ${dmSans.variable} ${devanagari.variable}`}
+      >
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

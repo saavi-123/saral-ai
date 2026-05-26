@@ -22,8 +22,7 @@ export default function SessionDetail({ params }) {
 
   const copyLink = () => {
     if (!session) return;
-    const full = `${window.location.origin}${session.tracking_link}`;
-    navigator.clipboard.writeText(full);
+    navigator.clipboard.writeText(session.tracking_link);
     alert("Tracking link copied!");
   };
 
