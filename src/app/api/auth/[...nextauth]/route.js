@@ -11,6 +11,7 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         try {
+          // Step 1: Authenticate with Strapi
           const res = await fetch(`${process.env.STRAPI_URL}/api/auth/local`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -19,19 +20,28 @@ const handler = NextAuth({
               password: credentials.password,
             }),
           });
-
           const data = await res.json();
 
-          if (data.jwt && data.user) {
-            return {
-              id: data.user.id,
-              name: data.user.username,
-              email: data.user.email,
-              jwt: data.jwt,
-            };
-          }
+          if (!data.jwt || !data.user) return null;
 
-          return null;
+          // Step 2: Fetch full user profile to get role_type + allowed_tools
+          const profileRes = await fetch(
+            `${process.env.STRAPI_URL}/api/users/${data.user.id}?populate=*`,
+            {
+              headers: { Authorization: `Bearer ${data.jwt}` },
+            }
+          );
+          
+          const profile = await profileRes.json();
+
+          return {
+            id: data.user.id,
+            name: data.user.username,
+            email: data.user.email,
+            jwt: data.jwt,
+            role_type: profile.role_type || "investigator",
+            allowed_tools: profile.allowed_tools || [],
+          };
         } catch (error) {
           console.error("Auth error:", error);
           return null;
@@ -39,35 +49,33 @@ const handler = NextAuth({
       },
     }),
   ],
-
   callbacks: {
     async jwt({ token, user }) {
-      // On first sign in, user object is available — persist jwt into token
       if (user) {
         token.jwt = user.jwt;
         token.name = user.name;
         token.email = user.email;
+        token.id = user.id;
+        token.role_type = user.role_type;
+        token.allowed_tools = user.allowed_tools;
       }
       return token;
     },
     async session({ session, token }) {
-      // Expose jwt and name to the session object
       session.jwt = token.jwt;
       session.user.name = token.name;
       session.user.email = token.email;
+      session.user.id = token.id;
+      session.user.role_type = token.role_type;
+      session.user.allowed_tools = token.allowed_tools;
       return session;
     },
   },
-
-  pages: {
-    signIn: "/login", // redirect to our custom login page
-  },
-
+  pages: { signIn: "/login" },
   session: {
     strategy: "jwt",
-    maxAge: 8 * 60 * 60, // 8 hours
+    maxAge: 8 * 60 * 60,
   },
-
   secret: process.env.NEXTAUTH_SECRET,
 });
 

