@@ -90,18 +90,25 @@ const ROLE_LABELS = {
   corporate: { label: "Corporate", color: "#a78bfa", bg: "rgba(167,139,250,0.1)", border: "rgba(167,139,250,0.25)" },
 };
 
+const ROLE_FULL_NAMES = {
+  admin: "Administrator",
+  investigator: "Investigator",
+  corporate: "Corporate User",
+};
+
 export default function Dashboard() {
   const [theme, setTheme] = useState("dark");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("live");
   const [activeCategory, setActiveCategory] = useState("collaboration");
+  const [profileOpen, setProfileOpen] = useState(false);
   const categoryRefs = useRef({});
   const searchRef = useRef(null);
+  const profileRef = useRef(null);
   const { data: session } = useSession();
 
   const roleType = session?.user?.role_type || null;
   const allowedTools = session?.user?.allowed_tools || null;
-  // Admin sees everything; others filtered by allowed_tools
   const isAdmin = roleType === "admin";
 
   const canSeeTool = (toolId) => {
@@ -125,10 +132,22 @@ export default function Dashboard() {
       if (e.key === "Escape") {
         setSearch("");
         searchRef.current?.blur();
+        setProfileOpen(false);
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -261,43 +280,158 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            style={{ background: "var(--bg3)", border: "0.5px solid var(--border2)", borderRadius: "8px", padding: "7px 12px", fontSize: "12px", color: "var(--text2)", cursor: "pointer", fontFamily: "var(--font-dm)", display: "flex", alignItems: "center", gap: "6px" }}
-          >
-            {isDark ? "☀️ Light" : "🌙 Dark"}
-          </button>
-
-          {/* User info + role badge + sign out */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "13px", color: "var(--text3)" }}>
-              {session?.user?.name || session?.user?.email || ""}
-            </span>
-            {roleInfo && (
-              <span style={{
-                fontSize: "10px", fontWeight: 600,
-                padding: "3px 8px", borderRadius: "6px",
-                textTransform: "uppercase", letterSpacing: "0.5px",
-                color: roleInfo.color, background: roleInfo.bg,
-                border: `0.5px solid ${roleInfo.border}`
-              }}>
-                {roleInfo.label}
-              </span>
-            )}
+          {/* Profile chip + dropdown */}
+          <div ref={profileRef} style={{ position: "relative" }}>
+            {/* Chip */}
             <div
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", background: "transparent", border: "0.5px solid var(--border2)", borderRadius: "8px", color: "var(--text3)", fontSize: "12px", cursor: "pointer", fontFamily: "var(--font-dm)", transition: "all 0.15s" }}
-              onMouseEnter={e => { e.currentTarget.style.background = "rgba(163,45,45,0.1)"; e.currentTarget.style.color = "#e57373"; e.currentTarget.style.borderColor = "rgba(163,45,45,0.3)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text3)"; e.currentTarget.style.borderColor = "var(--border2)"; }}
+              onClick={() => setProfileOpen(prev => !prev)}
+              style={{
+                display: "flex", alignItems: "center", gap: "8px",
+                padding: "6px 10px",
+                borderRadius: "8px",
+                border: "0.5px solid var(--border2)",
+                background: profileOpen ? "var(--bg3)" : "transparent",
+                cursor: "pointer",
+                transition: "all 0.15s",
+                userSelect: "none",
+              }}
+              onMouseEnter={e => {
+                if (!profileOpen) {
+                  e.currentTarget.style.background = "var(--bg3)";
+                  e.currentTarget.style.borderColor = "var(--border)";
+                }
+              }}
+              onMouseLeave={e => {
+                if (!profileOpen) {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = "var(--border2)";
+                }
+              }}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
+              {/* Username */}
+              <span style={{ fontSize: "13px", color: "var(--text2)" }}>
+                {session?.user?.name || session?.user?.email || ""}
+              </span>
+
+              {/* Role badge — existing styling, unchanged */}
+              {roleInfo && (
+                <span style={{
+                  fontSize: "10px", fontWeight: 600,
+                  padding: "3px 8px", borderRadius: "6px",
+                  textTransform: "uppercase", letterSpacing: "0.5px",
+                  color: roleInfo.color, background: roleInfo.bg,
+                  border: `0.5px solid ${roleInfo.border}`
+                }}>
+                  {roleInfo.label}
+                </span>
+              )}
+
+              {/* Chevron */}
+              <svg
+                width="10" height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                style={{
+                  color: "var(--text3)",
+                  transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.15s",
+                  flexShrink: 0,
+                }}
+              >
+                <polyline points="6 9 12 15 18 9" />
               </svg>
-              Sign out
             </div>
+
+            {/* Dropdown */}
+            {profileOpen && (
+              <div style={{
+                position: "absolute",
+                top: "calc(100% + 6px)",
+                right: 0,
+                minWidth: "200px",
+                background: "var(--bg2)",
+                border: "0.5px solid var(--border)",
+                borderRadius: "10px",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                zIndex: 50,
+                overflow: "hidden",
+              }}>
+                {/* Header section */}
+                <div style={{
+                  padding: "12px 14px",
+                  borderBottom: "0.5px solid var(--border)",
+                }}>
+                  <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--text)", marginBottom: "2px" }}>
+                    {session?.user?.name || session?.user?.email || ""}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "var(--text3)" }}>
+                    {roleType ? ROLE_FULL_NAMES[roleType] : ""}
+                  </div>
+                </div>
+
+                {/* Menu items */}
+                <div style={{ padding: "4px" }}>
+
+                  {/* Theme toggle */}
+                  <div
+                    onClick={() => { toggleTheme(); }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: "8px",
+                      padding: "8px 10px", borderRadius: "6px",
+                      fontSize: "12px", color: "var(--text2)",
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "var(--bg3)"; e.currentTarget.style.color = "var(--text)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text2)"; }}
+                  >
+                    <span style={{ fontSize: "13px" }}>{isDark ? "☀️" : "🌙"}</span>
+                    {isDark ? "Light Mode" : "Dark Mode"}
+                  </div>
+
+                  {/* Admin Panel — admins only */}
+                  {isAdmin && (
+                    <Link href="/admin" style={{ textDecoration: "none" }}>
+                      <div
+                        onClick={() => setProfileOpen(false)}
+                        style={{
+                          display: "flex", alignItems: "center", gap: "8px",
+                          padding: "8px 10px", borderRadius: "6px",
+                          fontSize: "12px", color: "var(--text2)",
+                          cursor: "pointer", transition: "all 0.15s",
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "var(--bg3)"; e.currentTarget.style.color = "var(--text)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text2)"; }}
+                      >
+                        <span style={{ fontSize: "13px" }}>⚙️</span>
+                        Admin Panel
+                      </div>
+                    </Link>
+                  )}
+
+                  {/* Divider before sign out */}
+                  <div style={{ height: "0.5px", background: "var(--border)", margin: "4px 0" }} />
+
+                  {/* Sign Out */}
+                  <div
+                    onClick={() => { setProfileOpen(false); signOut({ callbackUrl: "/login" }); }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: "8px",
+                      padding: "8px 10px", borderRadius: "6px",
+                      fontSize: "12px", color: "var(--text2)",
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(229,115,115,0.08)"; e.currentTarget.style.color = "#e57373"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text2)"; }}
+                  >
+                    <span style={{ fontSize: "13px" }}>🚪</span>
+                    Sign Out
+                  </div>
+
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -316,7 +450,6 @@ export default function Dashboard() {
           </div>
 
           {tools.map(cat => {
-            // Only show sidebar categories the user has at least one tool in
             const visibleItems = cat.items.filter(t => canSeeTool(t.toolId));
             if (visibleItems.length === 0) return null;
             const liveCnt = visibleItems.filter(t => t.live).length;
