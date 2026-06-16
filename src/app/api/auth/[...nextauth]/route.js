@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const handler = NextAuth({
+// Exported so server components can call getServerSession(authOptions)
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -11,7 +12,6 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         try {
-          // Step 1: Authenticate with Strapi
           const res = await fetch(`${process.env.STRAPI_URL}/api/auth/local`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -24,15 +24,13 @@ const handler = NextAuth({
 
           if (!data.jwt || !data.user) return null;
 
-          // Step 2: Fetch full user profile to get role_type + allowed_tools
           const profileRes = await fetch(
             `${process.env.STRAPI_URL}/api/users/${data.user.id}?populate=*`,
-            {
-              headers: { Authorization: `Bearer ${data.jwt}` },
-            }
+            { headers: { Authorization: `Bearer ${data.jwt}` } }
           );
-          
           const profile = await profileRes.json();
+
+          if (profile.blocked === true) return null;
 
           return {
             id: data.user.id,
@@ -77,6 +75,7 @@ const handler = NextAuth({
     maxAge: 8 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
-});
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

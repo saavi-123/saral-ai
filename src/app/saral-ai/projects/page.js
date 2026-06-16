@@ -1,20 +1,38 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../api/auth/[...nextauth]/route";
 import ProjectFilter from "../../components/ProjectFilter";
 
-async function getProjects() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/projects`, {
-    cache: "no-store"
+async function getProjects(session) {
+  const token = session?.user;
+  if (!token) return [];
+
+  let url;
+  if (token.role_type === "admin") {
+    url = `${process.env.STRAPI_URL}/api/projects?populate=owner&pagination[pageSize]=1000`;
+  } else {
+    url = `${process.env.STRAPI_URL}/api/projects?filters[owner][id][$eq]=${token.id}&populate=owner&pagination[pageSize]=1000`;
+  }
+  
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${process.env.STRAPI_ADMIN_TOKEN}`,
+    },
+    cache: "no-store",
   });
+
+  if (!res.ok) return [];
   const data = await res.json();
-  return data.data;
+  return data.data || [];
 }
 
-export default async function Home() {
-  const projects = await getProjects();
+export default async function ProjectsPage() {
+  const session = await getServerSession(authOptions);
+  const projects = await getProjects(session);
 
-  const active = projects.filter(p => p.status1 === "active").length;
-  const pending = projects.filter(p => p.status1 === "pending").length;
-  const closed = projects.filter(p => p.status1 === "closed").length;
+  const active = projects.filter((p) => p.status1 === "active").length;
+  const pending = projects.filter((p) => p.status1 === "pending").length;
+  const closed = projects.filter((p) => p.status1 === "closed").length;
 
   return (
     <div>
