@@ -3,80 +3,89 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
+import {
+  Brain, Network, MessageSquareWarning,
+  Phone, Smartphone, Search, TowerControl, ScanSearch,
+  ContactRound, Globe, Cpu, MessageSquare,
+  Landmark, Wallet, GitBranch, Receipt, Building2, Building,
+  MapPinned, Map, Route, Car, RadioTower, SearchCode,
+  BadgeCheck, FileText, GlobeLock, Fingerprint,
+  Users, FileStack, ShieldCheck, Database,
+} from "lucide-react";
 
 const tools = [
   {
     category: "Collaboration & AI",
     id: "collaboration",
     items: [
-      { name: "Saral AI", hindi: "सरल एआई", icon: "🧠", toolId: "saral-ai", desc: "AI-powered investigation simulation platform with multi-character consultation and evidence analysis.", usecase: "Simulate expert consultations; interrogate suspects; analyse case evidence with AI specialists.", live: true, href: "/saral-ai/projects" },
-      { name: "iC Connect", hindi: "आईसी कनेक्ट", icon: "🔗", toolId: "ic-connect", desc: "Platform for police officers to connect with training batch colleagues.", usecase: "Collaborate with peers from same training batch; share intelligence securely.", live: false },
-      { name: "Tip Line Analysis", hindi: "टिप लाइन एनालिसिस", icon: "📊", toolId: "tip-line", desc: "Processes and analyzes tip files in bulk.", usecase: "Handle large volumes of public tips; identify actionable intelligence from community reporting.", live: false },
+      { name: "Saral AI", hindi: "सरल एआई", icon: Brain, toolId: "saral-ai", desc: "AI-powered investigation simulation platform with multi-character consultation and evidence analysis.", usecase: "Simulate expert consultations; interrogate suspects; analyse case evidence with AI specialists.", live: true, href: "/saral-ai/projects" },
+      { name: "iC Connect", hindi: "आईसी कनेक्ट", icon: Network, toolId: "ic-connect", desc: "Platform for police officers to connect with training batch colleagues.", usecase: "Collaborate with peers from same training batch; share intelligence securely.", live: false },
+      { name: "Tip Line Analysis", hindi: "टिप लाइन एनालिसिस", icon: MessageSquareWarning, toolId: "tip-line", desc: "Processes and analyzes tip files in bulk.", usecase: "Handle large volumes of public tips; identify actionable intelligence from community reporting.", live: false },
     ]
   },
   {
     category: "Mobile & Device Intelligence",
     id: "mobile",
     items: [
-      { name: "CDR Processor", hindi: "सीडीआर प्रोसेसर", icon: "📡", toolId: "cdr", desc: "Analyzes mobile Call Detail Records with pattern detection.", usecase: "Map call frequency, duration, and tower locations; identify frequent contacts.", live: false },
-      { name: "IMEI Lookup", hindi: "आईएमईआई लुकअप", icon: "📱", toolId: "imei-lookup", desc: "Performs instant bulk IMEI number validation.", usecase: "Check device authenticity; identify if multiple SIMs used on same phone.", live: false },
-      { name: "CEIR Tracer", hindi: "सीईआईआर ट्रेसर", icon: "🔍", toolId: "ceir-tracer", desc: "Dashboard for tracking stolen/lost mobile phones via CEIR.", usecase: "Trace stolen devices; check if a phone is blacklisted.", live: false },
-      { name: "Cell Spyder", hindi: "सेल स्पाइडर", icon: "📶", toolId: "cell-spyder", desc: "Decodes Cell IDs and displays sectors on a map.", usecase: "Pinpoint device location at time of call/SMS.", live: false },
-      { name: "MNI Analysis", hindi: "एमएनआई एनालिसिस", icon: "🔬", toolId: "mni-analysis", desc: "100-point mobile number investigation framework.", usecase: "Deep-dive into mobile number history, associations, and digital footprint.", live: false },
-      { name: "TSP Lookup", hindi: "टीएसपी लुकअप", icon: "📋", toolId: "tsp-lookup", desc: "Bulk lookup of mobile carriers and circles.", usecase: "Identify telecom service provider for multiple numbers simultaneously.", live: false },
-      { name: "MCC-MNC Lookup", hindi: "एमसीसी-एमएनसी लुकअप", icon: "🌐", toolId: "mcc-mnc", desc: "Mobile Country Code and Network Code lookup worldwide.", usecase: "Determine mobile operator and country from IMSI/MNC codes.", live: false },
-      { name: "MAC Lookup", hindi: "मैक लुकअप", icon: "💻", toolId: "mac-lookup", desc: "OUI vendor lookup and MAC address intelligence.", usecase: "Identify device manufacturer; link devices to suspects in network crimes.", live: false },
-      { name: "SMS Header Intel", hindi: "एसएमएस हेडर इंटेल", icon: "✉️", toolId: "sms-header", desc: "Decodes SMS sender headers to identify TSP, circle, and entity.", usecase: "Trace spoofed SMS origins; identify telecom service provider.", live: false },
+      { name: "CDR Processor", hindi: "सीडीआर प्रोसेसर", icon: Phone, toolId: "cdr", desc: "Analyzes mobile Call Detail Records with pattern detection.", usecase: "Map call frequency, duration, and tower locations; identify frequent contacts.", live: false },
+      { name: "IMEI Lookup", hindi: "आईएमईआई लुकअप", icon: Smartphone, toolId: "imei-lookup", desc: "Performs instant bulk IMEI number validation.", usecase: "Check device authenticity; identify if multiple SIMs used on same phone.", live: false },
+      { name: "CEIR Tracer", hindi: "सीईआईआर ट्रेसर", icon: Search, toolId: "ceir-tracer", desc: "Dashboard for tracking stolen/lost mobile phones via CEIR.", usecase: "Trace stolen devices; check if a phone is blacklisted.", live: false },
+      { name: "Cell Spyder", hindi: "सेल स्पाइडर", icon: TowerControl, toolId: "cell-spyder", desc: "Decodes Cell IDs and displays sectors on a map.", usecase: "Pinpoint device location at time of call/SMS.", live: false },
+      { name: "MNI Analysis", hindi: "एमएनआई एनालिसिस", icon: ScanSearch, toolId: "mni-analysis", desc: "100-point mobile number investigation framework.", usecase: "Deep-dive into mobile number history, associations, and digital footprint.", live: false },
+      { name: "TSP Lookup", hindi: "टीएसपी लुकअप", icon: ContactRound, toolId: "tsp-lookup", desc: "Bulk lookup of mobile carriers and circles.", usecase: "Identify telecom service provider for multiple numbers simultaneously.", live: false },
+      { name: "MCC-MNC Lookup", hindi: "एमसीसी-एमएनसी लुकअप", icon: Globe, toolId: "mcc-mnc", desc: "Mobile Country Code and Network Code lookup worldwide.", usecase: "Determine mobile operator and country from IMSI/MNC codes.", live: false },
+      { name: "MAC Lookup", hindi: "मैक लुकअप", icon: Cpu, toolId: "mac-lookup", desc: "OUI vendor lookup and MAC address intelligence.", usecase: "Identify device manufacturer; link devices to suspects in network crimes.", live: false },
+      { name: "SMS Header Intel", hindi: "एसएमएस हेडर इंटेल", icon: MessageSquare, toolId: "sms-header", desc: "Decodes SMS sender headers to identify TSP, circle, and entity.", usecase: "Trace spoofed SMS origins; identify telecom service provider.", live: false },
     ]
   },
   {
     category: "Financial Investigation",
     id: "financial",
     items: [
-      { name: "BSA", hindi: "बीएसए", icon: "🏦", toolId: "bsa", desc: "Analyzes bulk bank statements for financial patterns.", usecase: "Detect money trails, suspicious deposits/withdrawals, and layering in financial frauds.", live: false },
-      { name: "PhonePe Analyzer", hindi: "फोनपे एनालाइज़र", icon: "💳", toolId: "phonepe-analyzer", desc: "Comprehensive analysis for PhonePe transaction data.", usecase: "Parse and analyze UPI transaction exports; trace peer-to-peer payments.", live: false },
-      { name: "NCCRP Graph", hindi: "एनसीसीआरपी ग्राफ", icon: "📈", toolId: "nccrp-graph", desc: "Visualizes transaction trails to track fraud amount flow.", usecase: "Map money movement across accounts; identify layering points.", live: false },
-      { name: "TSDP", hindi: "टीएसडीपी", icon: "🧾", toolId: "tsdp", desc: "Parses transaction screenshot data.", usecase: "Extract structured data from payment screenshots for evidence documentation.", live: false },
-      { name: "ATM Lookup", hindi: "एटीएम लुकअप", icon: "🏧", toolId: "atm-lookup", desc: "Searches ATM locations and banking channel details.", usecase: "Track cash withdrawal locations; identify ATM used in a transaction.", live: false },
-      { name: "IFSC Lookup", hindi: "आईएफएससी लुकअप", icon: "🔢", toolId: "ifsc-lookup", desc: "Looks up bank IFSC codes and branch details.", usecase: "Verify bank branch authenticity; identify beneficiary banks in fraud transactions.", live: false },
+      { name: "BSA", hindi: "बीएसए", icon: Landmark, toolId: "bsa", desc: "Analyzes bulk bank statements for financial patterns.", usecase: "Detect money trails, suspicious deposits/withdrawals, and layering in financial frauds.", live: false },
+      { name: "PhonePe Analyzer", hindi: "फोनपे एनालाइज़र", icon: Wallet, toolId: "phonepe-analyzer", desc: "Comprehensive analysis for PhonePe transaction data.", usecase: "Parse and analyze UPI transaction exports; trace peer-to-peer payments.", live: false },
+      { name: "NCCRP Graph", hindi: "एनसीसीआरपी ग्राफ", icon: GitBranch, toolId: "nccrp-graph", desc: "Visualizes transaction trails to track fraud amount flow.", usecase: "Map money movement across accounts; identify layering points.", live: false },
+      { name: "TSDP", hindi: "टीएसडीपी", icon: Receipt, toolId: "tsdp", desc: "Parses transaction screenshot data.", usecase: "Extract structured data from payment screenshots for evidence documentation.", live: false },
+      { name: "ATM Lookup", hindi: "एटीएम लुकअप", icon: Building2, toolId: "atm-lookup", desc: "Searches ATM locations and banking channel details.", usecase: "Track cash withdrawal locations; identify ATM used in a transaction.", live: false },
+      { name: "IFSC Lookup", hindi: "आईएफएससी लुकअप", icon: Building, toolId: "ifsc-lookup", desc: "Looks up bank IFSC codes and branch details.", usecase: "Verify bank branch authenticity; identify beneficiary banks in fraud transactions.", live: false },
     ]
   },
   {
     category: "Location & Movement",
     id: "location",
     items: [
-      { name: "Geolocation Tracking", hindi: "जियोलोकेशन ट्रैकिंग", icon: "🎯", toolId: "geolocation", desc: "Advanced suspect tracking and live radar intelligence system.", usecase: "Real-time suspect geolocation tracking; radar-based monitoring.", live: true, href: "/geolocation" },
-      { name: "Lat Long Mapper", hindi: "लैट लॉन्ग मैपर", icon: "🗺️", toolId: "lat-long-mapper", desc: "Interactive tool for visualizing coordinates on maps.", usecase: "Plot GPS coordinates from evidence; map crime scenes and suspect movements.", live: false },
-      { name: "Sugam Route", hindi: "सुगम रूट", icon: "🛣️", toolId: "sugam-route", desc: "Advanced route analysis and mapping tool.", usecase: "Reconstruct suspect travel routes from tower location data or GPS points.", live: false },
-      { name: "Toll Plaza", hindi: "टोल प्लाज़ा", icon: "🚗", toolId: "toll-plaza", desc: "Reviews toll plaza crossings and movement references.", usecase: "Track vehicle movement on highways; corroborate alibis or identify escape routes.", live: false },
-      { name: "IPDR Analysis", hindi: "आईपीडीआर एनालिसिस", icon: "🌐", toolId: "ipdr-analysis", desc: "Analyzes IPDR files, decodes sessions, and enriches with IP intel.", usecase: "Investigate internet usage patterns; map subscriber sessions to IP addresses.", live: false },
-      { name: "Google Analyzer", hindi: "गूगल एनालाइज़र", icon: "🔎", toolId: "google-analyzer", desc: "Analyzes Google data requests and exports.", usecase: "Parse Google location history, search logs, and account activity.", live: false },
+      { name: "Geolocation Tracking", hindi: "जियोलोकेशन ट्रैकिंग", icon: MapPinned, toolId: "geolocation", desc: "Advanced suspect tracking and live radar intelligence system.", usecase: "Real-time suspect geolocation tracking; radar-based monitoring.", live: true, href: "/geolocation" },
+      { name: "Lat Long Mapper", hindi: "लैट लॉन्ग मैपर", icon: Map, toolId: "lat-long-mapper", desc: "Interactive tool for visualizing coordinates on maps.", usecase: "Plot GPS coordinates from evidence; map crime scenes and suspect movements.", live: false },
+      { name: "Sugam Route", hindi: "सुगम रूट", icon: Route, toolId: "sugam-route", desc: "Advanced route analysis and mapping tool.", usecase: "Reconstruct suspect travel routes from tower location data or GPS points.", live: false },
+      { name: "Toll Plaza", hindi: "टोल प्लाज़ा", icon: Car, toolId: "toll-plaza", desc: "Reviews toll plaza crossings and movement references.", usecase: "Track vehicle movement on highways; corroborate alibis or identify escape routes.", live: false },
+      { name: "IPDR Analysis", hindi: "आईपीडीआर एनालिसिस", icon: RadioTower, toolId: "ipdr-analysis", desc: "Analyzes IPDR files, decodes sessions, and enriches with IP intel.", usecase: "Investigate internet usage patterns; map subscriber sessions to IP addresses.", live: false },
+      { name: "Google Analyzer", hindi: "गूगल एनालाइज़र", icon: SearchCode, toolId: "google-analyzer", desc: "Analyzes Google data requests and exports.", usecase: "Parse Google location history, search logs, and account activity.", live: false },
     ]
   },
   {
     category: "Identity & Verification",
     id: "identity",
     items: [
-      { name: "Aadhaar Validator", hindi: "आधार वैलिडेटर", icon: "🪪", toolId: "aadhaar-validator", desc: "Validates Aadhaar numbers for authenticity and formatting.", usecase: "Verify victim/suspect Aadhaar numbers; detect fake IDs in fraud cases.", live: false },
-      { name: "CAF Summarizer", hindi: "सीएएफ समराइज़र", icon: "📄", toolId: "caf-summarizer", desc: "Summarizes Customer Application Forms (CAF).", usecase: "Extract key details from mobile connection forms; identify fake applications.", live: false },
-      { name: "IP Intelligence", hindi: "आईपी इंटेलिजेंस", icon: "🛡️", toolId: "ip-intelligence", desc: "Provides deep IP insights including Tor/VPN detection.", usecase: "Trace origin of cyber attacks; identify anonymized traffic; geolocate IPs.", live: false },
-      { name: "Hash Generator", hindi: "हैश जेनरेटर", icon: "🔐", toolId: "hash-generator", desc: "Generates file hash values with certification support.", usecase: "Create digital fingerprints of evidence files; ensure data integrity for court.", live: false },
+      { name: "Aadhaar Validator", hindi: "आधार वैलिडेटर", icon: BadgeCheck, toolId: "aadhaar-validator", desc: "Validates Aadhaar numbers for authenticity and formatting.", usecase: "Verify victim/suspect Aadhaar numbers; detect fake IDs in fraud cases.", live: false },
+      { name: "CAF Summarizer", hindi: "सीएएफ समराइज़र", icon: FileText, toolId: "caf-summarizer", desc: "Summarizes Customer Application Forms (CAF).", usecase: "Extract key details from mobile connection forms; identify fake applications.", live: false },
+      { name: "IP Intelligence", hindi: "आईपी इंटेलिजेंस", icon: GlobeLock, toolId: "ip-intelligence", desc: "Provides deep IP insights including Tor/VPN detection.", usecase: "Trace origin of cyber attacks; identify anonymized traffic; geolocate IPs.", live: false },
+      { name: "Hash Generator", hindi: "हैश जेनरेटर", icon: Fingerprint, toolId: "hash-generator", desc: "Generates file hash values with certification support.", usecase: "Create digital fingerprints of evidence files; ensure data integrity for court.", live: false },
     ]
   },
   {
     category: "Database & Directory",
     id: "database",
     items: [
-      { name: "PS Lookup", hindi: "पीएस लुकअप", icon: "🏛️", toolId: "ps-lookup", desc: "Pan-India police station database.", usecase: "Locate correct police station jurisdiction; file complaints or transfer case information.", live: false },
-      { name: "Nodal Officers", hindi: "नोडल ऑफिसर्स", icon: "👤", toolId: "nodal-officers", desc: "Comprehensive directory of nodal officers.", usecase: "Quickly contact correct nodal officer for CDR, bank records, or subscriber information.", live: false },
-      { name: "LEA Templates", hindi: "एलईए टेम्पलेट्स", icon: "📝", toolId: "lea-templates", desc: "Ready-to-use Law Enforcement Agency templates.", usecase: "Generate standardized requisitions, summons, or court requests.", live: false },
+      { name: "PS Lookup", hindi: "पीएस लुकअप", icon: Building, toolId: "ps-lookup", desc: "Pan-India police station database.", usecase: "Locate correct police station jurisdiction; file complaints or transfer case information.", live: false },
+      { name: "Nodal Officers", hindi: "नोडल ऑफिसर्स", icon: Users, toolId: "nodal-officers", desc: "Comprehensive directory of nodal officers.", usecase: "Quickly contact correct nodal officer for CDR, bank records, or subscriber information.", live: false },
+      { name: "LEA Templates", hindi: "एलईए टेम्पलेट्स", icon: FileStack, toolId: "lea-templates", desc: "Ready-to-use Law Enforcement Agency templates.", usecase: "Generate standardized requisitions, summons, or court requests.", live: false },
     ]
   },
   {
     category: "Corporate Security",
     id: "corporate",
     items: [
-      { name: "Email Security", hindi: "ईमेल सिक्योरिटी", icon: "📧", toolId: "email-security", desc: "AI-powered email threat detection — classifies spam, phishing, and suspicious messages in real time.", usecase: "Automatically scan incoming emails; detect phishing attempts; protect corporate inboxes.", live: false, href: "/email-security" },
+      { name: "Email Security", hindi: "ईमेल सिक्योरिटी", icon: ShieldCheck, toolId: "email-security", desc: "AI-powered email threat detection — classifies spam, phishing, and suspicious messages in real time.", usecase: "Automatically scan incoming emails; detect phishing attempts; protect corporate inboxes.", live: false, href: "/email-security" },
     ]
   },
 ];
@@ -222,26 +231,20 @@ export default function Dashboard() {
         zIndex: 10
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{
-            width: "28px", height: "28px",
-            background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
-            borderRadius: "6px",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "14px"
-          }}>⚡</div>
+          <img
+            src="/saral-logo.png"
+            alt="SaralTech"
+            style={{ width: "32px", height: "32px", borderRadius: "8px", flexShrink: 0 }}
+          />
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", lineHeight: 1.15 }}>
             <span style={{ fontFamily: "var(--font-syne)", fontSize: "15px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.3px" }}>
               Cyber AI Agent
             </span>
-            <span style={{ fontSize: "12px", color: "var(--text2)", fontFamily: "var(--font-devanagari)", fontWeight: 500, marginTop: "3px", letterSpacing: "0.2px" }}>
-              साइबर एआई एजेंट
+            <span style={{ fontSize: "11px", color: "var(--text3)", marginTop: "2px" }}>
+              by SaralTech
             </span>
           </div>
-          <span style={{ fontSize: "10px", color: "var(--text3)", background: "var(--bg3)", padding: "2px 8px", borderRadius: "10px", letterSpacing: "0.5px", textTransform: "uppercase" }}>
-            Intelligence Platform
-          </span>
         </div>
-
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           {/* Search */}
           <div style={{ position: "relative" }}>
@@ -545,8 +548,8 @@ export default function Dashboard() {
                     borderRadius: "12px", padding: "18px", transition: "all 0.15s"
                   }}>
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "10px" }}>
-                      <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: tool.live ? "rgba(16,185,129,0.1)" : "var(--bg3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}>
-                        {tool.icon}
+                      <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: tool.live ? "rgba(16,185,129,0.1)" : "var(--bg3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <tool.icon size={18} color={tool.live ? "#10b981" : "var(--text3)"} />
                       </div>
                       <span style={{
                         fontSize: "10px", fontWeight: 600, padding: "3px 8px", borderRadius: "6px",
