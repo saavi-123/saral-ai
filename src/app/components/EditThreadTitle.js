@@ -13,10 +13,10 @@ export default function EditThreadTitle({ thread, fontSize = "14px", fontWeight 
   const handleSave = async () => {
     if (!title.trim()) return;
     setLoading(true);
-    await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/chat-threads/${thread.documentId}`, {
+    await fetch(`/api/chat-threads/${thread.documentId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: { title } })
+      body: JSON.stringify({ title }),
     });
     setLoading(false);
     setEditing(false);

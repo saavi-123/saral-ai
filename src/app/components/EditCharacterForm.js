@@ -17,12 +17,10 @@ export default function EditCharacterForm({ character }) {
   const handleSave = async () => {
     if (!name) return;
     setLoading(true);
-    await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/characters/${character.documentId}`, {
+    await fetch(`/api/characters/${character.documentId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        data: { name, summary, description, expertise, association, category }
-      })
+      body: JSON.stringify({ name, summary, description, expertise, association, category }),
     });
     setLoading(false);
     setOpen(false);

@@ -1,23 +1,38 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "../../../../api/auth/[...nextauth]/route";
 import AddContextForm from "../../../../components/AddContextForm";
 import DeleteButton from "../../../../components/DeleteButton";
 
-async function getContextItems(documentId) {
+async function verifyProjectAccess(documentId, session) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/context-items?filters[project][documentId][$eq]=${documentId}&sort=createdAt:desc`,
-    { cache: "no-store" }
+    `${process.env.STRAPI_URL}/api/projects/${documentId}?populate=owner`,
+    {
+      headers: { Authorization: `Bearer ${process.env.STRAPI_ADMIN_TOKEN}` },
+      cache: "no-store",
+    }
   );
+  if (!res.ok) return null;
   const data = await res.json();
-  return data.data;
+  const project = data.data;
+  if (!project) return null;
+  if (session.user.role_type === "admin") return project;
+  if (project.owner?.id != session.user.id) return null;
+  return project;
 }
 
-async function getProject(documentId) {
+async function getContextItems(documentId) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/projects/${documentId}`,
-    { cache: "no-store" }
+    `${process.env.STRAPI_URL}/api/context-items?filters[project][documentId][$eq]=${documentId}&sort=createdAt:desc&pagination[pageSize]=100`,
+    {
+      headers: { Authorization: `Bearer ${process.env.STRAPI_ADMIN_TOKEN}` },
+      cache: "no-store",
+    }
   );
+  if (!res.ok) return [];
   const data = await res.json();
-  return data.data;
+  return data.data || [];
 }
 
 const typeColors = {
@@ -25,25 +40,44 @@ const typeColors = {
   statement: { bg: "#E6F1FB", color: "#185FA5" },
   financial: { bg: "#FAEEDA", color: "#854F0B" },
   timeline: { bg: "#EEEDFE", color: "#534AB7" },
-  notes: { bg: "var(--bg3)", color: "var(--text2)" }
+  notes: { bg: "var(--bg3)", color: "var(--text2)" },
 };
 
 export default async function ContextPage({ params }) {
   const { id } = await params;
-  const [items, project] = await Promise.all([
-    getContextItems(id),
-    getProject(id)
-  ]);
+  const session = await getServerSession(authOptions);
+
+  const project = await verifyProjectAccess(id, session);
+  if (!project) redirect("/saral-ai/projects");
+
+  const items = await getContextItems(id);
 
   return (
     <div>
-      <Link href={`/saral-ai/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
+      <Link
+        href={`/saral-ai/projects/${id}`}
+        style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}
+      >
         ← Back to Project
       </Link>
 
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", margin: "16px 0 32px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          margin: "16px 0 32px",
+        }}
+      >
         <div>
-          <h1 style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.5px", color: "var(--text)" }}>
+          <h1
+            style={{
+              fontSize: "22px",
+              fontWeight: 700,
+              letterSpacing: "-0.5px",
+              color: "var(--text)",
+            }}
+          >
             Case Context
           </h1>
           <p style={{ fontSize: "13px", color: "var(--text2)", marginTop: "4px" }}>
@@ -53,20 +87,47 @@ export default async function ContextPage({ params }) {
       </div>
 
       {/* Stats Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px", marginBottom: "28px" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(5, 1fr)",
+          gap: "10px",
+          marginBottom: "28px",
+        }}
+      >
         {["evidence", "statement", "financial", "timeline", "notes"].map((type) => {
-          const count = items.filter(i => i.item_type === type).length;
+          const count = items.filter((i) => i.item_type === type).length;
           const { bg, color } = typeColors[type];
           return (
-            <div key={type} style={{
-              background: "var(--bg2)", borderRadius: "10px",
-              padding: "12px", border: "0.5px solid var(--border)",
-              textAlign: "center"
-            }}>
-              <div style={{ fontSize: "10px", color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "6px" }}>
+            <div
+              key={type}
+              style={{
+                background: "var(--bg2)",
+                borderRadius: "10px",
+                padding: "12px",
+                border: "0.5px solid var(--border)",
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "10px",
+                  color: "var(--text3)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px",
+                  marginBottom: "6px",
+                }}
+              >
                 {type}
               </div>
-              <div style={{ fontFamily: "var(--font-syne)", fontSize: "22px", fontWeight: 700, color: count > 0 ? color : "var(--text3)" }}>
+              <div
+                style={{
+                  fontFamily: "var(--font-syne)",
+                  fontSize: "22px",
+                  fontWeight: 700,
+                  color: count > 0 ? color : "var(--text3)",
+                }}
+              >
                 {count}
               </div>
             </div>
@@ -79,12 +140,24 @@ export default async function ContextPage({ params }) {
 
       {/* Context Items List */}
       {items.length === 0 ? (
-        <div style={{
-          border: "0.5px solid var(--border)", borderRadius: "12px",
-          padding: "48px", textAlign: "center", marginTop: "20px"
-        }}>
+        <div
+          style={{
+            border: "0.5px solid var(--border)",
+            borderRadius: "12px",
+            padding: "48px",
+            textAlign: "center",
+            marginTop: "20px",
+          }}
+        >
           <div style={{ fontSize: "32px", marginBottom: "12px" }}>📁</div>
-          <div style={{ fontWeight: 500, fontSize: "16px", color: "var(--text)", marginBottom: "8px" }}>
+          <div
+            style={{
+              fontWeight: 500,
+              fontSize: "16px",
+              color: "var(--text)",
+              marginBottom: "8px",
+            }}
+          >
             No context items yet
           </div>
           <div style={{ fontSize: "13px", color: "var(--text2)" }}>
@@ -92,31 +165,54 @@ export default async function ContextPage({ params }) {
           </div>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "20px" }}>
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "20px" }}
+        >
           {items.map((item) => {
             const { bg, color } = typeColors[item.item_type] || typeColors.notes;
             return (
-              <div key={item.id} style={{
-                border: "0.5px solid var(--border)",
-                borderRadius: "12px", padding: "16px 20px",
-                background: "var(--bg)"
-              }}>
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "8px" }}>
+              <div
+                key={item.id}
+                style={{
+                  border: "0.5px solid var(--border)",
+                  borderRadius: "12px",
+                  padding: "16px 20px",
+                  background: "var(--bg)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "space-between",
+                    marginBottom: "8px",
+                  }}
+                >
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span style={{
-                      fontSize: "11px", padding: "3px 10px", borderRadius: "20px",
-                      background: bg, color: color, fontWeight: 500
-                    }}>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        padding: "3px 10px",
+                        borderRadius: "20px",
+                        background: bg,
+                        color: color,
+                        fontWeight: 500,
+                      }}
+                    >
                       {item.item_type}
                     </span>
-                    <div style={{ fontWeight: 500, fontSize: "14px", color: "var(--text)" }}>
+                    <div
+                      style={{ fontWeight: 500, fontSize: "14px", color: "var(--text)" }}
+                    >
                       {item.title}
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <div style={{ fontSize: "11px", color: "var(--text3)" }}>
                       {new Date(item.createdAt).toLocaleDateString("en-IN", {
-                        day: "numeric", month: "short", year: "numeric"
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
                       })}
                     </div>
                     <DeleteButton
@@ -126,17 +222,29 @@ export default async function ContextPage({ params }) {
                   </div>
                 </div>
                 {item.description && (
-                  <div style={{ fontSize: "13px", color: "var(--text2)", marginBottom: "8px" }}>
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      color: "var(--text2)",
+                      marginBottom: "8px",
+                    }}
+                  >
                     {item.description}
                   </div>
                 )}
                 {item.content && (
-                  <div style={{
-                    fontSize: "13px", color: "var(--text)", lineHeight: 1.7,
-                    background: "var(--bg2)", borderRadius: "8px",
-                    padding: "12px", marginTop: "8px",
-                    whiteSpace: "pre-wrap"
-                  }}>
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      color: "var(--text)",
+                      lineHeight: 1.7,
+                      background: "var(--bg2)",
+                      borderRadius: "8px",
+                      padding: "12px",
+                      marginTop: "8px",
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
                     {item.content}
                   </div>
                 )}

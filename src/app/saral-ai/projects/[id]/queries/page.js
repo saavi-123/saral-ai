@@ -1,29 +1,46 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "../../../../api/auth/[...nextauth]/route";
+
+async function verifyProjectAccess(documentId, session) {
+  const res = await fetch(
+    `${process.env.STRAPI_URL}/api/projects/${documentId}?populate=owner`,
+    {
+      headers: { Authorization: `Bearer ${process.env.STRAPI_ADMIN_TOKEN}` },
+      cache: "no-store",
+    }
+  );
+  if (!res.ok) return null;
+  const data = await res.json();
+  const project = data.data;
+  if (!project) return null;
+  if (session.user.role_type === "admin") return project;
+  if (project.owner?.id != session.user.id) return null;
+  return project;
+}
 
 async function getQueries(documentId) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/queries?filters[project][documentId][$eq]=${documentId}&populate=character&sort=createdAt:desc`,
-    { cache: "no-store" }
+    `${process.env.STRAPI_URL}/api/queries?filters[project][documentId][$eq]=${documentId}&populate=character&sort=createdAt:desc&pagination[pageSize]=1000`,
+    {
+      headers: { Authorization: `Bearer ${process.env.STRAPI_ADMIN_TOKEN}` },
+      cache: "no-store",
+    }
   );
+  if (!res.ok) return [];
   const data = await res.json();
-  return data.data;
-}
-
-async function getProject(documentId) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/projects/${documentId}`,
-    { cache: "no-store" }
-  );
-  const data = await res.json();
-  return data.data;
+  return data.data || [];
 }
 
 export default async function QueriesPage({ params }) {
   const { id } = await params;
-  const [queries, project] = await Promise.all([
-    getQueries(id),
-    getProject(id)
-  ]);
+  const session = await getServerSession(authOptions);
+
+  const project = await verifyProjectAccess(id, session);
+  if (!project) redirect("/saral-ai/projects");
+
+  const queries = await getQueries(id);
 
   return (
     <div>

@@ -14,29 +14,49 @@ export default function NewCharacter({ params }) {
   const [association, setAssociation] = useState("");
   const [category, setCategory] = useState("production");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async () => {
     if (!name) return;
     setLoading(true);
+    setError("");
 
-    const countRes = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/characters?pagination[pageSize]=1000`);
-    const countData = await countRes.json();
-    const count = countData.meta.pagination.total + 1;
-    const character_id = `CHR-${String(count).padStart(3, "0")}`;
+    try {
+      const character_id = `CHR-${Date.now().toString().slice(-6)}`;
 
-    await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/characters`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        data: { name, summary, description, expertise, association, category, project: id, character_id }
-      })
-    });
-    router.push(`/saral-ai/projects/${id}`);
+      const res = await fetch("/api/characters", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          summary,
+          description,
+          expertise,
+          association,
+          category,
+          project: id,
+          character_id,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Failed to add character");
+        setLoading(false);
+        return;
+      }
+
+      router.push(`/saral-ai/projects/${id}`);
+      router.refresh();
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
     <div style={{ maxWidth: "600px" }}>
-      <Link href={`/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
+      <Link href={`/saral-ai/projects/${id}`} style={{ fontSize: "13px", color: "var(--text2)", textDecoration: "none" }}>
         ← Back to Project
       </Link>
 
@@ -46,6 +66,16 @@ export default function NewCharacter({ params }) {
       <p style={{ fontSize: "13px", color: "var(--text2)", marginBottom: "32px" }}>
         Add a specialist to this investigation
       </p>
+
+      {error && (
+        <div style={{
+          background: "rgba(163,45,45,0.1)", border: "0.5px solid #A32D2D",
+          borderRadius: "8px", padding: "12px 16px",
+          fontSize: "13px", color: "#A32D2D", marginBottom: "20px"
+        }}>
+          {error}
+        </div>
+      )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
@@ -149,7 +179,7 @@ export default function NewCharacter({ params }) {
           >
             {loading ? "Adding..." : "Add Character"}
           </button>
-          <Link href={`/projects/${id}`}>
+          <Link href={`/saral-ai/projects/${id}`}>
             <button style={{
               background: "transparent", border: "0.5px solid var(--border2)",
               borderRadius: "8px", padding: "10px 24px",
