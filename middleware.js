@@ -7,6 +7,7 @@ const ROUTE_PERMISSIONS = {
   "/geolocation": ["admin", "investigator"],
   "/email-security": ["admin", "corporate"],
   "/admin": ["admin"],
+  "/hash-generator": ["admin", "investigator"],
 };
 
 export async function middleware(request) {

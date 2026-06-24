@@ -69,7 +69,7 @@ const tools = [
       { name: "Aadhaar Validator", hindi: "आधार वैलिडेटर", icon: BadgeCheck, toolId: "aadhaar-validator", desc: "Validates Aadhaar numbers for authenticity and formatting.", usecase: "Verify victim/suspect Aadhaar numbers; detect fake IDs in fraud cases.", live: false },
       { name: "CAF Summarizer", hindi: "सीएएफ समराइज़र", icon: FileText, toolId: "caf-summarizer", desc: "Summarizes Customer Application Forms (CAF).", usecase: "Extract key details from mobile connection forms; identify fake applications.", live: false },
       { name: "IP Intelligence", hindi: "आईपी इंटेलिजेंस", icon: GlobeLock, toolId: "ip-intelligence", desc: "Provides deep IP insights including Tor/VPN detection.", usecase: "Trace origin of cyber attacks; identify anonymized traffic; geolocate IPs.", live: false },
-      { name: "Hash Generator", hindi: "हैश जेनरेटर", icon: Fingerprint, toolId: "hash-generator", desc: "Generates file hash values with certification support.", usecase: "Create digital fingerprints of evidence files; ensure data integrity for court.", live: false },
+      { name: "Hash Generator", hindi: "हैश जेनरेटर", icon: Fingerprint, toolId: "hash-generator", desc: "Generates file hash values with certification support.", usecase: "Create digital fingerprints of evidence files; ensure data integrity for court.", live: true, href: "/hash-generator" },
     ]
   },
   {
